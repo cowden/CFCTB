@@ -148,6 +148,7 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     unsigned m_Nseg;     // number of segments on detector side
     G4double m_segWidth;
     G4double m_segHeight;
+    G4double m_absDepth;
 
     // number of dead segments to put on sides of active area
     unsigned m_deadSeg_bottom;
@@ -221,6 +222,7 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     G4Tubs * m_buffCher_tube;
     G4Tubs * m_air_gap;
     G4Box * m_repeat_box;
+    G4Box * m_deadBlock_box;
 
     // logical volumes
     G4LogicalVolume * m_expHall_log;

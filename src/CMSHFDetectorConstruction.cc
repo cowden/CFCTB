@@ -86,6 +86,7 @@ CMSHFDetectorConstruction::CMSHFDetectorConstruction()
   m_length = 60.*cm;  // half length of the calorimeter
   m_segWidth = 4*mm;
   m_segHeight = 4*mm;
+  m_absDepth = 2.*cm;
 
   // set the position of the detector
   //m_zPos = 7.3*m;
@@ -391,6 +392,7 @@ void CMSHFDetectorConstruction::SetupGeometry()
   m_air_gap = new G4Tubs("airGap",0.,m_rair,m_length,0,2.*pi);
   m_glass_box = new G4Box("Glass",m_segWidth/2.,m_segHeight/2.,1.*cm);
   m_repeat_box = new G4Box("repeat",m_segWidth/2.,m_segHeight/2.,m_length);
+  m_deadBlock_box = new G4Box("block",m_absDepth/2.,m_Wdy,m_length);
 
   //
   // ------------- Volumes --------------
@@ -422,7 +424,7 @@ void CMSHFDetectorConstruction::SetupGeometry()
   m_glass_log = new G4LogicalVolume(m_glass_box,m_glass,"glassLog",0,0,0); 
 
   // dead material
-  m_deadBlock_log = new G4LogicalVolume(m_absBlock,m_brass,"DeadMaterial",0,0,0);
+  m_deadBlock_log = new G4LogicalVolume(m_deadBlock_box,m_iron,"DeadMaterial",0,0,0);
 
   // set limits on the time to propagate photons
   // needs a G4StepLimiter needs to be added to OpticalPhoton
@@ -482,6 +484,7 @@ void CMSHFDetectorConstruction::SetupDetectors()
   }
 
   // place dead blocks
+  m_deadBlocks_phys.push_back(new G4PVPlacement(G4Transform3D(rot,G4ThreeVector(m_xPos-m_Wdx-m_absDepth,m_yPos,m_zPos)),m_deadBlock_log,"dead",m_expHall_log,false,0,m_checkOverlaps));
   /*const unsigned nDead = m_deadPositions.size();
   for ( unsigned i=0; i != nDead; i++ ) {
     m_deadBlocks_phys.push_back(new G4PVPlacement(G4Transform3D(rot,m_deadPositions[i]),m_deadBlock_log,"dead",m_expHall_log,false,0,m_checkOverlaps));
