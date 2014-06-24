@@ -8,7 +8,7 @@
 #/testBeam/buildWorBrass false
 #/testBeam/fibreSpacing 2. mm
 /testBeam/length 1. m
-/testBeam/detPosition 0 0 1. m
+/testBeam/detPosition 1.5 0 1.5 m
 /testBeam/fibres true
 /testBeam/Nseg 11
 #/testBeam/rotate -1.5 3 0 deg
@@ -51,7 +51,7 @@
 /gun/energy 10 GeV
 /gun/position 0 0 0 mm
 #/gun/direction 0.05 0 0.998 
-/gun/direction 0.0523 0 1 
+/gun/direction 1 0 1 
 /gun/positionSmearing 1 1 0 cm
 #/gun/thetaSmearing 0 deg
 #/gun/phiSmearing 0 deg
@@ -63,4 +63,4 @@
 #/gun/info
  
 #
-/run/beamOn 1000
+/run/beamOn 10

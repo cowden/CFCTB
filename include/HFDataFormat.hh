@@ -38,14 +38,14 @@ struct StackingStruct {
   double na;
   double x;
   double y;
-  double z;
+  double depth;
   double t;
   double tprop;
 
 
-  inline StackingStruct(double w, double e, double n,double gx, double gy,double gz, double gt, double pt)
+  inline StackingStruct(double w, double e, double n,double gx, double gy,double gd, double gt, double pt)
     :wavelength(w),energy(e),na(n)
-    ,x(gx),y(gy),z(gz),t(gt),tprop(pt)
+    ,x(gx),y(gy),depth(gd),t(gt),tprop(pt)
     { }
 };
 
@@ -208,7 +208,7 @@ private:
   std::vector<double>  m_opt_na;
   std::vector<double>  m_opt_fx;
   std::vector<double>  m_opt_fy;
-  std::vector<double>  m_opt_fz;
+  std::vector<double>  m_opt_depth;
   std::vector<double>  m_opt_t;
   std::vector<double>  m_opt_tprop;
 
@@ -217,7 +217,7 @@ private:
   std::vector<double>  m_scin_na;
   std::vector<double>  m_scin_fx;
   std::vector<double>  m_scin_fy;
-  std::vector<double>  m_scin_fz;
+  std::vector<double>  m_scin_depth;
   std::vector<double>  m_scin_t;
   std::vector<double>  m_scin_tprop;
 

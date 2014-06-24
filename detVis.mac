@@ -4,7 +4,7 @@
 #/testBeam/buildWorBrass false
 #/testBeam/fibreSpacing 2. mm
 /testBeam/length 1. m
-/testBeam/detPosition 1.5 0 1.5 m
+/testBeam/detPosition 0.1 0 -0.325 m
 /testBeam/fibres true
 #/testBeam/magField 0. 0. 3.8 tesla
 /testBeam/checkOverlaps false

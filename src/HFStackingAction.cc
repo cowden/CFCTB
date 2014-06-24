@@ -145,6 +145,9 @@ HFStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       assert( ph.dist <= 1. );
       assert( ph.dist >= 0. );      
 
+      // distance from front face of fiber
+      const double depth = m_fibLength*(1.-ph.dist);
+
       Travel trk = GetTimeAndProbability(ph,fib);
       double prob = trk.prob[0];
       double probTime = trk.time[0];
@@ -165,11 +168,11 @@ HFStackingAction::ClassifyNewTrack(const G4Track * aTrack)
 
       if ( vName.contains("Cfib") &&  lambda > m_lCutLow && isDetected ) {
         gammaCounter++;
-	StackingStruct st(lambda,E,na,x,y,z,t,probTime);
+	StackingStruct st(lambda,E,na,x,y,depth,t,probTime);
         m_df->fillStackingAction(st,fCherenkov);
       } else if ( vName.contains("Sfib") &&  lambda > m_lCutLow && isDetected ) { 
         gammaCounter++;
-	StackingStruct st(lambda,E,na,x,y,z,t,probTime);
+	StackingStruct st(lambda,E,na,x,y,depth,t,probTime);
         m_df->fillStackingAction(st,fScintillation);
       } else if ( vName.contains("glass")  ) {
 	// kill tracks created in the glass
