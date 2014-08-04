@@ -113,11 +113,11 @@ struct IoniStruct {
   double E;
   double x;
   double y;
-  double z;
+  double depth;
   double t;
 
-  inline IoniStruct(const double e, const G4ThreeVector &pos, double T)
-    :E(e),x(pos.x()),y(pos.y()),z(pos.z()),t(T)
+  inline IoniStruct(const double e, const G4ThreeVector &pos, double d, double T)
+    :E(e),x(pos.x()),y(pos.y()),depth(d),t(T)
     { }
 
 };
@@ -226,7 +226,7 @@ private:
   std::vector<double> m_scinIon_t;
   std::vector<double> m_scinIon_x;
   std::vector<double> m_scinIon_y;
-  std::vector<double> m_scinIon_z;
+  std::vector<double> m_scinIon_depth;
 
 
   // photons crossing the end of a fiber

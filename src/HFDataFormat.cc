@@ -67,7 +67,7 @@ void HFDataFormat::fillIonization(const IoniStruct &is)
     m_scinIon_E.push_back(is.E);
     m_scinIon_x.push_back(is.x);
     m_scinIon_y.push_back(is.y);
-    m_scinIon_z.push_back(is.z);
+    m_scinIon_depth.push_back(is.depth);
     m_scinIon_t.push_back(is.t);
   }
 }
@@ -183,7 +183,7 @@ void HFDataFormat::generateTrees()
     m_event->Branch("ion_E",&m_scinIon_E);
     m_event->Branch("ion_x",&m_scinIon_x);
     m_event->Branch("ion_y",&m_scinIon_y);
-    m_event->Branch("ion_z",&m_scinIon_z);
+    m_event->Branch("ion_depth",&m_scinIon_depth);
     m_event->Branch("ion_t",&m_scinIon_t);
   }
 
@@ -263,7 +263,7 @@ void HFDataFormat::clearStacking()
     m_scinIon_E.clear();
     m_scinIon_x.clear();
     m_scinIon_y.clear();
-    m_scinIon_z.clear();
+    m_scinIon_depth.clear();
     m_scinIon_t.clear();
   }
 }

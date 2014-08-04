@@ -10,6 +10,7 @@
 HFSteppingAction::HFSteppingAction(HFDataFormat *df)
 :m_df(df)
 ,m_optDef( G4OpticalPhoton::OpticalPhotonDefinition() )
+,m_fibLength(2.*m)
 { }
 
 HFSteppingAction::~HFSteppingAction()
@@ -63,7 +64,12 @@ void HFSteppingAction::UserSteppingAction(const G4Step * step)
 
   } else if ( preVolume == postVolume && preName.contains("Sfib") ) {
     const double E = step->GetTotalEnergyDeposit();
-    IoniStruct is(E,pos,time);
+
+    const G4ThreeVector & touchTrans = theTrack->GetTouchable()->GetTranslation();
+    const double dist = (touchTrans.z()+m_fibLength/2.-pos.z())/m_fibLength;
+    const double depth = m_fibLength*(1.-dist);
+
+    IoniStruct is(E,pos,depth,time);
     m_df->fillIonization(is); 
   } 
 

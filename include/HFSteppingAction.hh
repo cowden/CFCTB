@@ -21,10 +21,14 @@ public:
   ~HFSteppingAction();
 
   virtual void UserSteppingAction(const G4Step *);
+  
+  void SetFibLength(G4double l) { m_fibLength = l; }
 
 private:
   HFDataFormat * m_df; 
   const G4ParticleDefinition * m_optDef;
+
+  G4double m_fibLength;
  
 };
 
