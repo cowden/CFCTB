@@ -7,7 +7,7 @@
 /testBeam/detPosition 0.1 0 -0.325 m
 /testBeam/fibres true
 #/testBeam/magField 0. 0. 3.8 tesla
-/testBeam/checkOverlaps false
+/testBeam/checkOverlaps true
 /testBeam/Nseg 11 
 /testBeam/refreshGeometry true
 
@@ -18,7 +18,7 @@
 
 # Use this open statement to create an OpenGL view:
 #/vis/open OGL 600x600-0+0
-/vis/open OGLIX 600x600-0+0
+#/vis/open OGLIX 600x600-0+0
 #
 # Use this open statement to create a .prim file suitable for
 # viewing in DAWN:
@@ -30,7 +30,7 @@
 #
 # Use this open statement to create a .wrl file suitable for
 # viewing in a VRML viewer:
-#/vis/open VRML2FILE
+/vis/open VRML2FILE
 #
 # Disable auto refresh and quieten vis messages whilst scene and
 # trajectories are established:

@@ -100,10 +100,10 @@ CMSHFDetectorConstruction::CMSHFDetectorConstruction()
   m_rCClad = 0.330*mm;
   m_rCCore = 0.3*mm;
 
-  m_rSFib = 0.286*mm;
-  m_rSClad = 0.197*mm;
-  m_rSGlass = 0.183*mm;
-  m_rSCore = 0.105*mm;
+  m_rSFib = 0.175*mm;
+  m_rSClad = 0.115*mm;
+  m_rSGlass = 0.100*mm;
+  m_rSCore = 0.030*mm;
 
   m_rair = 1.25*mm;
 
@@ -387,8 +387,10 @@ void CMSHFDetectorConstruction::SetupGeometry()
   m_qFibreCher = new G4Tubs("quartzFibre",0.,m_rCFib,m_length,0.,2.*pi);
   m_cladCher_tube = new G4Tubs("cladding",m_rCCore,m_rCClad,m_length,0,2.*pi);
   m_buffCher_tube = new G4Tubs("buffer",m_rCClad,m_rCFib,m_length,0,2.*pi);
-  m_qFibreScin = new G4Tubs("scsfFibre",0.,m_rSClad,m_length,0.,2.*pi);
-  m_cladScin_tube = new G4Tubs("cladding",m_rSClad,m_rSFib,m_length,0,2.*pi);
+  m_qFibreScin = new G4Tubs("scsfFibre",0.,m_rSFib,m_length,0.,2.*pi);
+  m_cladScin_tube = new G4Tubs("cladding",m_rSGlass,m_rSClad,m_length,0,2.*pi);
+  m_buffScin_tube = new G4Tubs("buffer",m_rSClad,m_rSFib,m_length,0,2.*pi);
+  m_jacketScin_tube = new G4Tubs("jacket",m_rSCore,m_rSGlass,m_length,0,2.*pi);
   m_air_gap = new G4Tubs("airGap",0.,m_rair,m_length,0,2.*pi);
   m_glass_box = new G4Box("Glass",m_segWidth/2.,m_segHeight/2.,1.*cm);
   m_repeat_box = new G4Box("repeat",m_segWidth/2.,m_segHeight/2.,m_length);
@@ -414,9 +416,15 @@ void CMSHFDetectorConstruction::SetupGeometry()
   
   // Scintillating scsf-78
   m_qFibreScin_log = new G4LogicalVolume(m_qFibreScin,m_scsf78,"scsf78FibreLog",0,0,0);
+
+  // jacket
+  m_jacketScin_log = new G4LogicalVolume(m_jacketScin_tube,m_quartz,"jacket",0,0,0);
   
   // Cladding on fibre
   m_cladScin_log = new G4LogicalVolume(m_cladScin_tube,m_cladScin,"claddingScin",0,0,0);
+
+  // buffer on Scintillating Fibre
+  m_buffScin_log = new G4LogicalVolume(m_buffScin_tube,m_buffer,"bufferScinLog",0,0,0);
 
 
   // Glass 
@@ -503,15 +511,23 @@ void CMSHFDetectorConstruction::PlaceFibres()
   // place air gap
   m_airGap_phys.push_back(new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_airGap_log,"AirGap",m_absBlock_log,false,0,m_checkOverlaps));
 
-  // place four quartz fibres
+  // place two quartz fibres
   m_fibresCher.push_back(new G4PVPlacement(0,G4ThreeVector(0.,-m_rCFib,0.),m_qFibreCher_log,"Cfib0",m_airGap_log,false,0,m_checkOverlaps));
   m_fibresCher.push_back(new G4PVPlacement(0,G4ThreeVector(0,m_rCFib,0.),m_qFibreCher_log,"Cfib1",m_airGap_log,false,1,m_checkOverlaps));
-  m_fibresCher.push_back(new G4PVPlacement(0,G4ThreeVector(0.693,0.,0.),m_qFibreCher_log,"Cfib2",m_airGap_log,false,2,m_checkOverlaps));
-  m_fibresCher.push_back(new G4PVPlacement(0,G4ThreeVector(-0.693,0.,0.),m_qFibreCher_log,"Cfib3",m_airGap_log,false,3,m_checkOverlaps));
+ 
+  // place two scintillating fibers
+  const double x = sqrt((m_rCFib+m_rSFib)*(m_rCFib+m_rSFib)-m_rCFib*m_rCFib);
+  m_fibresScin.push_back(new G4PVPlacement(0,G4ThreeVector(x,0.,0.),m_qFibreScin_log,"Sfib0",m_airGap_log,false,0,m_checkOverlaps));
+  m_fibresScin.push_back(new G4PVPlacement(0,G4ThreeVector(-x,0.,0.),m_qFibreScin_log,"Sfib1",m_airGap_log,false,1,m_checkOverlaps));
 
   // place clad and buffer in the first fibre
-  m_claddingCher.push_back(new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladCher_log,"clad",m_qFibreCher_log,false,0,m_checkOverlaps));
-  m_bufferCher.push_back(new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_buffCher_log,"buffer",m_qFibreCher_log,false,0,m_checkOverlaps));
+  m_claddingCher = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladCher_log,"clad",m_qFibreCher_log,false,0,m_checkOverlaps);
+  m_bufferCher = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_buffCher_log,"buffer",m_qFibreCher_log,false,0,m_checkOverlaps);
+
+  // place clad and biffer and jacket on scintillating fiber
+  m_jacketScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_jacketScin_log,"jacket",m_qFibreScin_log,false,0,m_checkOverlaps);
+  m_claddingScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladScin_log,"clad",m_qFibreScin_log,false,0,m_checkOverlaps);
+  m_bufferScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_buffScin_log,"buffer",m_qFibreScin_log,false,0,m_checkOverlaps);
 
 
 }
@@ -837,6 +853,9 @@ void CMSHFDetectorConstruction::ClearPhysicalVolumes()
   m_glass_phys.clear();
 
   // clear daughters of logical volumes
+  m_jacketScin_log->ClearDaughters();
+  m_buffScin_log->ClearDaughters();
+  m_buffCher_log->ClearDaughters();
   m_cladScin_log->ClearDaughters();  
   m_cladCher_log->ClearDaughters();
   m_qFibreScin_log->ClearDaughters();
@@ -849,13 +868,11 @@ void CMSHFDetectorConstruction::ClearPhysicalVolumes()
   }
   m_fibresCher.clear();
 
-  const unsigned nClad = m_claddingCher.size();
-  for ( unsigned i=0; i != nClad; i++ ) {
-    delete m_claddingCher[i];
-    delete m_bufferCher[i];
+  const unsigned nSFibs = m_fibresScin.size();
+  for ( unsigned i=0; i != nSFibs; i++ ) {
+    delete m_fibresScin[i];
   }
-  m_claddingCher.clear();
-  m_bufferCher.clear();
+  m_fibresScin.clear();
 
   m_airGap_log->ClearDaughters();
 
@@ -876,6 +893,8 @@ void CMSHFDetectorConstruction::ClearLogicalVolumes()
 
   delete m_qFibreScin_log;
   delete m_cladScin_log;
+  delete m_buffScin_log;
+  delete m_jacketScin_log;
 
   delete m_glass_log;
   delete m_deadBlock_log;

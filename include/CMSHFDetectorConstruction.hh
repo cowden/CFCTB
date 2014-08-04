@@ -219,7 +219,9 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     G4Box * m_glass_box;
     G4Tubs * m_cladCher_tube;
     G4Tubs * m_cladScin_tube;
+    G4Tubs * m_jacketScin_tube;
     G4Tubs * m_buffCher_tube;
+    G4Tubs * m_buffScin_tube;
     G4Tubs * m_air_gap;
     G4Box * m_repeat_box;
     G4Box * m_deadBlock_box;
@@ -230,6 +232,8 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     G4LogicalVolume * m_qFibreCher_log;
     G4LogicalVolume * m_cladCher_log;
     G4LogicalVolume * m_buffCher_log;
+    G4LogicalVolume * m_buffScin_log;
+    G4LogicalVolume * m_jacketScin_log;
     G4LogicalVolume * m_qFibreScin_log;
     G4LogicalVolume * m_cladScin_log;
     G4LogicalVolume * m_airGap_log;
@@ -240,10 +244,14 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     G4VPhysicalVolume * m_expHall_phys;
     std::vector<G4VPhysicalVolume *> m_absBlock_phys;
     std::vector<G4VPhysicalVolume *> m_fibresCher;
-    std::vector<G4VPhysicalVolume *> m_claddingCher;
-    std::vector<G4VPhysicalVolume *> m_bufferCher;;
+    G4VPhysicalVolume * m_claddingCher;
+    G4VPhysicalVolume * m_bufferCher;
+
+    G4VPhysicalVolume * m_bufferScin;
+    G4VPhysicalVolume * m_jacketScin;
     std::vector<G4VPhysicalVolume *> m_fibresScin;
-    std::vector<G4VPhysicalVolume *> m_claddingScin;
+    G4VPhysicalVolume * m_claddingScin;
+
     std::vector<G4VPhysicalVolume *> m_airGap_phys;
     std::vector<G4VPhysicalVolume *> m_glass_phys;
     std::vector<G4VPhysicalVolume *> m_deadBlocks_phys;

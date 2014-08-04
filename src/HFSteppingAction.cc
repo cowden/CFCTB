@@ -61,10 +61,10 @@ void HFSteppingAction::UserSteppingAction(const G4Step * step)
       theTrack->SetTrackStatus(fStopAndKill);
     }
 
-  } else if ( preVolume == postVolume && preName.contains("scsf") ) {
+  } else if ( preVolume == postVolume && preName.contains("Sfib") ) {
     const double E = step->GetTotalEnergyDeposit();
     IoniStruct is(E,pos,time);
-    //m_df->fillIonization(is); 
+    m_df->fillIonization(is); 
   } 
 
 }
