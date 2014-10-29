@@ -92,7 +92,7 @@ HFStackingAction::ClassifyNewTrack(const G4Track * aTrack)
     { // particle is secondary
 
       // kill all photons	
-      classification = fKill;
+      //classification = fKill;
 
       const G4DynamicParticle *aParticle = aTrack->GetDynamicParticle();
       const double E = aParticle->GetTotalEnergy();
@@ -126,7 +126,7 @@ HFStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       fib.refrIndCore = m_nFibre;
       fib.refrIndClad = m_nClad;
       fib.refrIndAir = 1.;
-      fib.refrIndDet = m_nGlass;
+      fib.refrIndDet = m_nAir;
       fib.direction.SetX(m_fibreDir.x());
       fib.direction.SetY(m_fibreDir.y());
       fib.direction.SetZ(m_fibreDir.z());
