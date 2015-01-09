@@ -101,6 +101,9 @@ void HFDataFormat::fillSteppingAction(const SteppingStruct &st)
     m_pmt_x.push_back(st.x);
     m_pmt_y.push_back(st.y);
     m_pmt_z.push_back(st.z);
+    m_pmt_vx.push_back(st.vx);
+    m_pmt_vy.push_back(st.vy);
+    m_pmt_vz.push_back(st.vz);
     m_pmt_t.push_back(st.t);
     m_pmt_tl.push_back(st.tl);
     m_pmt_lt.push_back(st.lt);
@@ -117,6 +120,9 @@ void HFDataFormat::fillSteppingAction(const SteppingStruct &st, const ROType t)
       m_pmtScin_x.push_back(st.x);
       m_pmtScin_y.push_back(st.y);
       m_pmtScin_z.push_back(st.z);
+      m_pmtScin_vx.push_back(st.vx);
+      m_pmtScin_vy.push_back(st.vy);
+      m_pmtScin_vz.push_back(st.vz);
       m_pmtScin_t.push_back(st.t);
       m_pmtScin_tl.push_back(st.tl);
       m_pmtScin_lt.push_back(st.lt);
@@ -127,6 +133,9 @@ void HFDataFormat::fillSteppingAction(const SteppingStruct &st, const ROType t)
       m_pmt_x.push_back(st.x);
       m_pmt_y.push_back(st.y);
       m_pmt_z.push_back(st.z);
+      m_pmt_vx.push_back(st.vx);
+      m_pmt_vy.push_back(st.vy);
+      m_pmt_vz.push_back(st.vz);
       m_pmt_t.push_back(st.t);
       m_pmt_lt.push_back(st.lt);
       m_pmt_tl.push_back(st.tl);
@@ -213,6 +222,9 @@ void HFDataFormat::generateTrees()
     m_event->Branch("pmt_x",&m_pmt_x);
     m_event->Branch("pmt_y",&m_pmt_y);
     m_event->Branch("pmt_z",&m_pmt_z);
+    m_event->Branch("pmt_vx",&m_pmt_vx);
+    m_event->Branch("pmt_vy",&m_pmt_vy);
+    m_event->Branch("pmt_vz",&m_pmt_vz);
 
     m_event->Branch("pmtScin_t",&m_pmtScin_t);
     m_event->Branch("pmtScin_localTime",&m_pmtScin_lt);
@@ -223,6 +235,9 @@ void HFDataFormat::generateTrees()
     m_event->Branch("pmtScin_x",&m_pmtScin_x);
     m_event->Branch("pmtScin_y",&m_pmtScin_y);
     m_event->Branch("pmtScin_z",&m_pmtScin_z);
+    m_event->Branch("pmtScin_vx",&m_pmtScin_vx);
+    m_event->Branch("pmtScin_vy",&m_pmtScin_vy);
+    m_event->Branch("pmtScin_vz",&m_pmtScin_vz);
   }
 
 }

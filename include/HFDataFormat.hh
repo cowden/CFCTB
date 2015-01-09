@@ -99,10 +99,15 @@ struct SteppingStruct {
   double lambda;
   double polX;
   double polY;
+  double vx;
+  double vy;
+  double vz;
 
   inline SteppingStruct(const G4ThreeVector &mom, double pt,
-    double localTime, double tLength, double l, double ppx, double ppy)
+    double localTime, double tLength, double l, double ppx, double ppy, 
+    const G4ThreeVector &vert)
     :x(mom.x()),y(mom.y()),z(mom.z()),t(pt),lt(localTime),tl(tLength),lambda(l),polX(ppx),polY(ppy)
+    ,vx(vert.x()),vy(vert.y()),vz(vert.z())
     { }
 };
 
@@ -233,6 +238,9 @@ private:
   std::vector<double> m_pmt_x;
   std::vector<double> m_pmt_y;
   std::vector<double> m_pmt_z;
+  std::vector<double> m_pmt_vx;
+  std::vector<double> m_pmt_vy;
+  std::vector<double> m_pmt_vz;
   std::vector<double> m_pmt_t;
   std::vector<double> m_pmt_lt;
   std::vector<double> m_pmt_tl;
@@ -244,6 +252,9 @@ private:
   std::vector<double> m_pmtScin_x;
   std::vector<double> m_pmtScin_y;
   std::vector<double> m_pmtScin_z;
+  std::vector<double> m_pmtScin_vx;
+  std::vector<double> m_pmtScin_vy;
+  std::vector<double> m_pmtScin_vz;
   std::vector<double> m_pmtScin_t;
   std::vector<double> m_pmtScin_lt;
   std::vector<double> m_pmtScin_tl;

@@ -521,12 +521,12 @@ void CMSHFDetectorConstruction::PlaceFibres()
   m_fibresScin.push_back(new G4PVPlacement(0,G4ThreeVector(-x,0.,0.),m_qFibreScin_log,"Sfib1",m_airGap_log,false,1,m_checkOverlaps));
 
   // place clad and buffer in the first fibre
-  m_claddingCher = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladCher_log,"clad",m_qFibreCher_log,false,0,m_checkOverlaps);
+  m_claddingCher = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladCher_log,"Qclad",m_qFibreCher_log,false,0,m_checkOverlaps);
   m_bufferCher = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_buffCher_log,"buffer",m_qFibreCher_log,false,0,m_checkOverlaps);
 
   // place clad and biffer and jacket on scintillating fiber
   m_jacketScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_jacketScin_log,"jacket",m_qFibreScin_log,false,0,m_checkOverlaps);
-  m_claddingScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladScin_log,"clad",m_qFibreScin_log,false,0,m_checkOverlaps);
+  m_claddingScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladScin_log,"Sclad",m_qFibreScin_log,false,0,m_checkOverlaps);
   m_bufferScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_buffScin_log,"buffer",m_qFibreScin_log,false,0,m_checkOverlaps);
 
 
