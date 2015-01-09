@@ -492,7 +492,7 @@ void CMSHFDetectorConstruction::SetupDetectors()
   }
 
   // place dead blocks
-  m_deadBlocks_phys.push_back(new G4PVPlacement(G4Transform3D(rot,G4ThreeVector(m_xPos-m_Wdx-m_absDepth,m_yPos,m_zPos)),m_deadBlock_log,"dead",m_expHall_log,false,0,m_checkOverlaps));
+  //m_deadBlocks_phys.push_back(new G4PVPlacement(G4Transform3D(rot,G4ThreeVector(m_xPos-m_Wdx-m_absDepth,m_yPos,m_zPos)),m_deadBlock_log,"dead",m_expHall_log,false,0,m_checkOverlaps));
   /*const unsigned nDead = m_deadPositions.size();
   for ( unsigned i=0; i != nDead; i++ ) {
     m_deadBlocks_phys.push_back(new G4PVPlacement(G4Transform3D(rot,m_deadPositions[i]),m_deadBlock_log,"dead",m_expHall_log,false,0,m_checkOverlaps));
