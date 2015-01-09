@@ -170,7 +170,7 @@ HFStackingAction::ClassifyNewTrack(const G4Track * aTrack)
         gammaCounter++;
 	StackingStruct st(lambda,E,na,x,y,depth,t,probTime);
         m_df->fillStackingAction(st,fCherenkov);
-      } else if ( vName.contains("Sfib") &&  lambda > m_lCutLow && isDetected ) { 
+      } else if ( (vName.contains("Sfib") || vName.contains("jacket")) &&  lambda > m_lCutLow && isDetected ) { 
         gammaCounter++;
 	StackingStruct st(lambda,E,na,x,y,depth,t,probTime);
         m_df->fillStackingAction(st,fScintillation);
