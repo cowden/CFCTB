@@ -63,7 +63,7 @@ void HFDataFormat::fillStackingAction(const StackingStruct &st, const ROType t)
 
 void HFDataFormat::fillIonization(const IoniStruct &is)
 {
-  if (_storeOpticalInfo) {
+  if (_storePMTInfo) {
     m_scinIon_E.push_back(is.E);
     m_scinIon_x.push_back(is.x);
     m_scinIon_y.push_back(is.y);
@@ -87,11 +87,21 @@ void HFDataFormat::fillParticle(const ParticleStruct &pt)
   }
 }
 
+// accummulate leakage
+void HFDataFormat::accLeakage(Face f, const double E)
+{
+  m_totLeak += E;
+  if ( f == fSide ) m_latLeak += E;
+  else if ( f == fFront ) m_frontLeak += E;
+  else if ( f == fBack ) m_backLeak += E;
+}
+
 void HFDataFormat::fillGenerator(const GeneratorStruct &gn)
 {
   if (_storeGeneratorInfo){
     m_gen_x.push_back(gn.x);
     m_gen_y.push_back(gn.y);
+    m_gen_e.push_back(gn.e);
   }
 }
 
@@ -154,6 +164,7 @@ void HFDataFormat::store()
   clearPMT();
   clearParticle();
   clearGenerator();
+  clearLeakage();
 }
 
 
@@ -189,11 +200,6 @@ void HFDataFormat::generateTrees()
     m_event->Branch("scin_t",&m_scin_t);
     m_event->Branch("scin_tprop",&m_scin_tprop);
 
-    m_event->Branch("ion_E",&m_scinIon_E);
-    m_event->Branch("ion_x",&m_scinIon_x);
-    m_event->Branch("ion_y",&m_scinIon_y);
-    m_event->Branch("ion_depth",&m_scinIon_depth);
-    m_event->Branch("ion_t",&m_scinIon_t);
   }
 
   if (_storeParticleInfo){
@@ -210,6 +216,7 @@ void HFDataFormat::generateTrees()
   if (_storeGeneratorInfo){
     m_event->Branch("gen_x",&m_gen_x);
     m_event->Branch("gen_y",&m_gen_y);
+    m_event->Branch("gen_e",&m_gen_e);
   }
 
   if ( _storePMTInfo ) {
@@ -238,7 +245,18 @@ void HFDataFormat::generateTrees()
     m_event->Branch("pmtScin_vx",&m_pmtScin_vx);
     m_event->Branch("pmtScin_vy",&m_pmtScin_vy);
     m_event->Branch("pmtScin_vz",&m_pmtScin_vz);
+
+    m_event->Branch("ion_E",&m_scinIon_E);
+    m_event->Branch("ion_x",&m_scinIon_x);
+    m_event->Branch("ion_y",&m_scinIon_y);
+    m_event->Branch("ion_depth",&m_scinIon_depth);
+    m_event->Branch("ion_t",&m_scinIon_t);
   }
+
+  m_event->Branch("totLeak",&m_totLeak,"totLeak/D");
+  m_event->Branch("latLeak",&m_latLeak,"latLeak/D");
+  m_event->Branch("frontLeak",&m_frontLeak,"frontLeak/D");
+  m_event->Branch("backLeak",&m_backLeak,"backLeak/D");
 
 }
 
@@ -275,11 +293,6 @@ void HFDataFormat::clearStacking()
     m_scin_t.clear();
     m_scin_tprop.clear();
 
-    m_scinIon_E.clear();
-    m_scinIon_x.clear();
-    m_scinIon_y.clear();
-    m_scinIon_depth.clear();
-    m_scinIon_t.clear();
   }
 }
 
@@ -305,6 +318,12 @@ void HFDataFormat::clearPMT()
     m_pmtScin_wavelength.clear();
     m_pmtScin_polX.clear();
     m_pmtScin_polY.clear();
+
+    m_scinIon_E.clear();
+    m_scinIon_x.clear();
+    m_scinIon_y.clear();
+    m_scinIon_depth.clear();
+    m_scinIon_t.clear();
   }
 }
 
@@ -327,6 +346,15 @@ void HFDataFormat::clearGenerator()
   if (_storeGeneratorInfo){
     m_gen_x.clear();
     m_gen_y.clear();
+    m_gen_e.clear();
   }
+}
+
+void HFDataFormat::clearLeakage()
+{
+  m_totLeak = 0.;
+  m_latLeak = 0.;
+  m_frontLeak = 0.;
+  m_backLeak = 0.;
 }
 

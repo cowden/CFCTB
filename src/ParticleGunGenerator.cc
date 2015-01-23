@@ -72,6 +72,12 @@ G4double ParticleGunGenerator::GetGunMomentum(void)
   return gunMomentum;
 }
 
+G4double ParticleGunGenerator::GetGunEnergy(void)
+{
+  // return the kinetic energy of the initial particle
+  return fParticleGun->GetParticleEnergy();
+}
+
 void ParticleGunGenerator::GeneratePrimaryVertex(G4Event *evt)
 {
   // save old properties (to undo the smearing later)

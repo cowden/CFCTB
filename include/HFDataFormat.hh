@@ -30,6 +30,15 @@ enum ROType {
 };
 
 ///
+///
+/// enumeration of detector faces (sides, front, back)
+enum Face {
+ fSide=0,
+ fFront,
+ fBack
+};
+
+///
 /// The StackingStruct helps to pass data from the HFStackingAction
 /// to the ntuple filling procedure.
 struct StackingStruct {
@@ -79,9 +88,10 @@ struct ParticleStruct {
 struct GeneratorStruct {
   double x;
   double y;
+  double e;
 
-  inline GeneratorStruct(double gx, double gy)
-    :x(gx),y(gy)
+  inline GeneratorStruct(double gx, double gy, double ge)
+    :x(gx),y(gy),e(ge)
     { }
   
 };
@@ -145,6 +155,9 @@ public:
 
   // fill shower particles when new track is created
   void fillParticle(const ParticleStruct &);
+ 
+  // accummulate leakage
+  void accLeakage(Face f, const double E);
 
   // fill from primary generator action
   void fillGenerator(const GeneratorStruct &);
@@ -200,6 +213,8 @@ private:
   void clearParticle();
   // clear generator vectors
   void clearGenerator();
+  // clear leakage variables
+  void clearLeakage();
 
   // ------------------- member data -------------------
   TFile * m_file;
@@ -275,6 +290,13 @@ private:
   // generator (beam) parameters
   std::vector<double>  m_gen_x;
   std::vector<double>  m_gen_y;
+  std::vector<double>  m_gen_e;
+
+  // leakage
+  double m_totLeak;
+  double m_latLeak;
+  double m_frontLeak;
+  double m_backLeak;
 
 
 };

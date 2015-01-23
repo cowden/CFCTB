@@ -19,8 +19,8 @@
 #/event/verbose 2
 #/tracking/verbose 2
 
-/output/storeOpticalInfo true  # define store optical photon info in the output tree
-/output/storeParticleInfo true  # define store all other particles in the output tree
+/output/storeOpticalInfo false  # define store optical photon info in the output tree
+/output/storeParticleInfo false  # define store all other particles in the output tree
 /output/storeGeneratorInfo true # define store generator particles in the output tree
 /output/storePMTInfo true    # define store photons at end of fiber
 /output/genTree  # required command to create branches of the Tree as defined above 
@@ -47,8 +47,8 @@
 #/gun/direction 0 70 -100
 #/N06/gun/optPhotonPolar 0
 
-/gun/particle e-
-/gun/energy 10 GeV
+/gun/particle e+
+/gun/energy 16 GeV
 /gun/position 0 0 0 mm
 #/gun/direction 0.05 0 0.998  # 3 degrees
 /gun/direction 0.036 0 0.999  # 2 degrees
@@ -63,4 +63,4 @@
 #/gun/info
  
 #
-/run/beamOn 10
+/run/beamOn 1000

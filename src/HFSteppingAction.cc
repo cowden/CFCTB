@@ -36,11 +36,12 @@ void HFSteppingAction::UserSteppingAction(const G4Step * step)
   const double time = theTrack->GetGlobalTime();
   if ( time > 100*ns ) theTrack->SetTrackStatus(fStopAndKill);
 
+  const G4String & postName = postVolume->GetName();
+
   // record photons tracked to PMT face
   if ( theTrack->GetDefinition() == m_optDef && preVolume != postVolume 
 	&&  ( isFibre || isScinFibre ) ) {
 
-    const G4String & postName = postVolume->GetName();
     if ( postName.contains("glass") ) {
 
       const G4DynamicParticle * theParticle = theTrack->GetDynamicParticle();
@@ -64,6 +65,7 @@ void HFSteppingAction::UserSteppingAction(const G4Step * step)
     }
 
   } else if ( preVolume == postVolume && preName.contains("Sfib") ) {
+    // collect ionization energy loss in the scintillating fiber core
     const double E = step->GetTotalEnergyDeposit();
 
     const G4ThreeVector & touchTrans = theTrack->GetTouchable()->GetTranslation();
@@ -72,6 +74,17 @@ void HFSteppingAction::UserSteppingAction(const G4Step * step)
 
     IoniStruct is(E,pos,depth,time);
     m_df->fillIonization(is); 
+  } 
+  else if ( theTrack->GetDefinition() != m_optDef && preVolume != postVolume
+    && ( postName.contains("World") || postName.contains("glass") ) ) {
+    // collect and accummulate the energy leaking from the calorimeter module
+    const double E = theTrack->GetKineticEnergy();
+  
+    if ( postName.contains("glass") ) m_df->accLeakage(fBack,E);
+    else  m_df->accLeakage(fSide,E);
+
+    // kill tracks that leave the module
+    theTrack->SetTrackStatus(fStopAndKill);
   } 
 
 }

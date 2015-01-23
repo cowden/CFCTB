@@ -63,6 +63,7 @@ public:
   ESmearingMode GetGunMomentumSmearingMode(void)                   { return fGunMomentumSmearingMode; }
   G4double GetOptPhotonPolar(void)                                 { return fGunOptPolar; }
   G4ThreeVector GetGunPosition(void)                               { return fGunPosition; }
+  G4double GetGunEnergy(void);
   
 
 private:
