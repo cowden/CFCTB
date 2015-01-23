@@ -327,7 +327,7 @@ void CMSHFDetectorConstruction::DefineScintillator()
   scsfProps->AddProperty("RINDEX",scinEnergies,scinRindex,nScinEnergies);
   scsfProps->AddProperty("ABSLENGTH",scinEnergies,scinAbsLength,nScinEnergies);
 
-  scsfProps->AddProperty("FASTCOMPONENT",scinEnergies,scinValues,nScinEnergies);
+  /*scsfProps->AddProperty("FASTCOMPONENT",scinEnergies,scinValues,nScinEnergies);
   scsfProps->AddProperty("SLOWCOMPONENT",scinEnergies,scinValues,nScinEnergies);
 
   //
@@ -337,7 +337,7 @@ void CMSHFDetectorConstruction::DefineScintillator()
   scsfProps->AddConstProperty("RESOLUTIONSCALE", 2.0);
   scsfProps->AddConstProperty("FASTTIMECONSTANT", m_scinFastConst);
   scsfProps->AddConstProperty("SLOWTIMECONSTANT", m_scinSlowConst);
-  scsfProps->AddConstProperty("YIELDRATIO", m_scinYieldRatio);
+  scsfProps->AddConstProperty("YIELDRATIO", m_scinYieldRatio);*/
 
   G4MaterialPropertiesTable *scsfCladProps = new G4MaterialPropertiesTable();
   scsfCladProps->AddProperty("RINDEX",scinEnergies,scinCladRindex,nScinEnergies);
