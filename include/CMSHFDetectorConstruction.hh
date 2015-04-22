@@ -44,6 +44,7 @@ class G4Material;
 class G4Box;
 class G4Tubs;
 class G4UserLimits;
+class G4MaterialPropertiesTable;
 
 class G4UniformMagField;
 
@@ -193,6 +194,13 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
 
     G4double m_rair; // radius of air gap
 
+    // bundle holder geometry
+    G4double m_rCollar;
+    G4double m_rOuterCollar;
+    G4double m_collarLength;
+    G4double m_pmtWindowThickness;
+
+
     // rotation matrix for the wedge
     // this describes how a wedge is shifted from a normal position
     double m_pitch; 
@@ -209,7 +217,14 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     G4Material * m_scsf78;
     G4Material * m_cladScin;
     G4Material * m_iron;
+    G4Material * m_steel;
+    G4Material * m_lead;
     G4Material * m_buffer;
+    G4Material * m_collarMaterial;
+    G4Material * m_vacuum;
+
+    // material property tables
+    G4MaterialPropertiesTable * m_vacMPT;
 
     // primitives
     G4Box * m_expHall_box;
@@ -222,13 +237,13 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     G4Tubs * m_jacketScin_tube;
     G4Tubs * m_buffCher_tube;
     G4Tubs * m_buffScin_tube;
-    G4Tubs * m_air_gap;
-    G4Box * m_repeat_box;
-    G4Box * m_deadBlock_box;
+    G4Tubs * m_collar_tube;
+    G4Tubs * m_pmtWindow_plate;
 
     // logical volumes
     G4LogicalVolume * m_expHall_log;
     G4LogicalVolume * m_absBlock_log;
+    G4LogicalVolume * m_pbBlock_log;
     G4LogicalVolume * m_qFibreCher_log;
     G4LogicalVolume * m_cladCher_log;
     G4LogicalVolume * m_buffCher_log;
@@ -236,13 +251,15 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     G4LogicalVolume * m_jacketScin_log;
     G4LogicalVolume * m_qFibreScin_log;
     G4LogicalVolume * m_cladScin_log;
-    G4LogicalVolume * m_airGap_log;
     G4LogicalVolume * m_glass_log;
-    G4LogicalVolume * m_deadBlock_log;
+    G4LogicalVolume * m_collar_log;
+    G4LogicalVolume * m_pmtWindow_log;
+    G4LogicalVolume * m_pmtSpace_log;
 
     // physical volumes
     G4VPhysicalVolume * m_expHall_phys;
-    std::vector<G4VPhysicalVolume *> m_absBlock_phys;
+    G4VPhysicalVolume * m_absBlock_phys;
+    std::vector<G4VPhysicalVolume *> m_pbBlock_phys;
     std::vector<G4VPhysicalVolume *> m_fibresCher;
     G4VPhysicalVolume * m_claddingCher;
     G4VPhysicalVolume * m_bufferCher;
@@ -252,9 +269,11 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     std::vector<G4VPhysicalVolume *> m_fibresScin;
     G4VPhysicalVolume * m_claddingScin;
 
-    std::vector<G4VPhysicalVolume *> m_airGap_phys;
-    std::vector<G4VPhysicalVolume *> m_glass_phys;
-    std::vector<G4VPhysicalVolume *> m_deadBlocks_phys;
+    G4VPhysicalVolume * m_glass_phys;
+
+    G4VPhysicalVolume * m_collar_phys;
+    G4VPhysicalVolume * m_pmtWindow_phys;
+    G4VPhysicalVolume * m_pmtSpace_phys;
 
 
     // uniform magnetic field

@@ -34,6 +34,8 @@
 
 #include "OptFibreTools.hh"
 
+#include "G4SystemOfUnits.hh"
+#include "G4PhysicalConstants.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
 #include "G4Track.hh"
@@ -164,7 +166,7 @@ HFStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       //const G4VProcess * proc = aTrack->GetCreatorProcess();
       //const G4String & procName = proc ? proc->GetProcessName() : "no";
      
-      if ( lambda <= m_lCutLow ) classification = fKill;
+      //if ( lambda <= m_lCutLow ) classification = fKill;
 
       if ( vName.contains("Cfib") &&  lambda > m_lCutLow && isDetected ) {
         gammaCounter++;

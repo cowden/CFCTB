@@ -7,6 +7,9 @@ name := bigModule
 G4TARGET := $(name)
 G4EXLIB := true
 
+CPPFLAGS += $(shell root-config --cflags) -I$(EXTERN_BASE)/include -g
+EXTRALIBS = $(shell root-config --glibs) -L$(EXTERN_BASE)/lib -lHepMC -lCLHEP -g
+
 ifndef G4INSTALL
   G4INSTALL = ../../..
 endif

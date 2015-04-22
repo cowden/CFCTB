@@ -51,7 +51,7 @@
 #include "G4EmStandardPhysics.hh"
 #include "G4VModularPhysicsList.hh"
 
-#include "LHEP.hh"
+//#include "LHEP.hh"
 #include "QGSP_BERT.hh"
 
 #include "HFPrimaryGeneratorAction.hh"

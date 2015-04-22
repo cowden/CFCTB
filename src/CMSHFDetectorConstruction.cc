@@ -35,6 +35,8 @@
 #include "HFStackingAction.hh"
 #include "HFPrimaryGeneratorAction.hh"
 
+#include "PMTQE.h"
+
 #include "G4RunManager.hh"
 
 #include "G4Material.hh"
@@ -48,6 +50,7 @@
 #include "G4ThreeVector.hh"
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4PhysicalConstants.hh"
 #include "G4NistManager.hh"
 #include "G4UserLimits.hh"
 #include "G4UniformMagField.hh"
@@ -70,23 +73,23 @@ CMSHFDetectorConstruction::CMSHFDetectorConstruction()
 ,m_nSFib(1.457),m_nSClad(1.42)
 //,m_absSFib(4.*m),m_absSClad(4.*m)
 ,m_absSFib(28.1*m),m_absSClad(28.1*m)
-,m_nGlass(1.517),m_absGlass(.1)
+,m_nGlass(1.517),m_absGlass(1.*m)
 ,m_Bfield(NULL)
 ,m_stacking(NULL)
 //,m_gun(NULL)
 {
 
-  m_expHall_z = 20.0*m;
+  m_expHall_z = 5.0*m;
   m_expHall_x = 5.0*m;
   m_expHall_y = 5.0*m;
 
   m_pitch = 0.*deg;
   m_yaw = 0.*deg;
 
-  m_length = 60.*cm;  // half length of the calorimeter
-  m_segWidth = 4*mm;
-  m_segHeight = 4*mm;
-  m_absDepth = 2.*cm;
+  m_length = 20.*cm;  // half length of the calorimeter
+  m_segWidth = 10*cm;
+  m_segHeight = 20*cm;
+  m_absDepth = 5.*cm;
 
   // set the position of the detector
   //m_zPos = 7.3*m;
@@ -107,10 +110,16 @@ CMSHFDetectorConstruction::CMSHFDetectorConstruction()
 
   m_rair = 1.25*mm;
 
-  m_Nseg = 32U;
+  m_Nseg = 4U;
 
   m_nQseg = 4;
   m_nSseg = 0;
+
+  // Fiber coupling parameters
+  m_rCollar = 1.27*cm;
+  m_rOuterCollar = 1.77*cm;
+  m_pmtWindowThickness = 5.*mm;
+  m_collarLength = 2*cm;
 
 
   // dead material around block
@@ -126,6 +135,13 @@ CMSHFDetectorConstruction::CMSHFDetectorConstruction()
   m_scinSlowConst = 10.*ns;
   m_scinYield = 8300./MeV;
   m_scinYieldRatio = 0.8;
+
+  // create null pointers to some physical volumes
+  // this is an improtant check when geometry is refreshed as some volumes
+  // have not yet been placed.
+  m_collar_phys = NULL;
+  m_pmtWindow_phys = NULL;
+  m_pmtSpace_phys = NULL;
 
   m_checkOverlaps = false;
   m_messenger = new CMSHFDetectorConstructionMessenger(this);
@@ -194,9 +210,16 @@ void CMSHFDetectorConstruction::DefineMaterials()
   G4Element* H = man->FindOrBuildElement("H");
   G4Element* Zn = man->FindOrBuildElement("Zn");
 
+  // air (material)  optical properties are defined below
   m_air = new G4Material("Air", density=1.29*mg/cm3, nelements=2);
   m_air->AddElement(N, 70.*perCent);
   m_air->AddElement(O, 30.*perCent);
+
+  // vacuum (same as air, but less dense) 
+  m_vacuum = new G4Material("vacuum", density=0.129*mg/cm3,nelements=2);
+  m_vacuum->AddElement(N,70.*perCent);
+  m_vacuum->AddElement(O, 30.*perCent);
+  
 
   m_buffer = man->FindOrBuildMaterial("G4_KAPTON");
 
@@ -207,6 +230,15 @@ void CMSHFDetectorConstruction::DefineMaterials()
 
   // Iron
   m_iron = new G4Material("Iron", z=26, a=55.845*g/mole, density=7.874*g/cm3);
+
+  // Lead
+  m_lead = new G4Material("Lead", z=82, a=207.2*g/mole, density=11.35*g/cm3);
+
+  // steel
+  m_steel = man->FindOrBuildMaterial("G4_STAINLESS-STEEL");
+
+  // collar material (using lucite since it's in the NIST database)
+  m_collarMaterial = man->FindOrBuildMaterial("G4_LUCITE");
 
   // Quartz
   //
@@ -262,10 +294,39 @@ void CMSHFDetectorConstruction::DefineMaterials()
               1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
               1.00, 1.00, 1.00, 1.00 };
 
+  G4double reflectivity[nEntries] =
+            { 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
+              0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
+              0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
+              0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
+              0.00, 0.00, 0.00, 0.00 };
+
+  G4double efficiency[nEntries] =
+            { 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+              1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+              1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+              1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00,
+              1.00, 1.00, 1.00, 1.00 };
+
   G4MaterialPropertiesTable* myMPT2 = new G4MaterialPropertiesTable();
   myMPT2->AddProperty("RINDEX", PhotonEnergy, RefractiveIndex2, nEntries);
   
   m_air->SetMaterialPropertiesTable(myMPT2);
+
+  //
+  // vacuum optical properties
+
+  G4double * pmtE = pmtEnergies();
+  G4double * pmtEff = pmtEfficiencies();
+  G4int pmtInt = pmtEntries;
+  m_vacMPT = new G4MaterialPropertiesTable();
+  m_vacMPT->AddProperty("REFLECTIVITY",PhotonEnergy, reflectivity, nEntries);
+  m_vacMPT->AddProperty("EFFICIENCY", pmtE, pmtEff, pmtInt);
+  m_vacuum->SetMaterialPropertiesTable(m_vacMPT);
+
+  G4cout << "PMT Material " << pmtE << " " << pmtEff << " " << pmtEff[0] << G4endl;
+  for ( unsigned i=0; i != pmtEntries; i++ ) 
+    G4cout << "PMT Eff: " << pmtE[i] << " " << pmtEff[i] << G4endl;
 
   // Glass
   //
@@ -283,6 +344,8 @@ void CMSHFDetectorConstruction::DefineMaterials()
   G4double glassAbs[3] = {m_absGlass,m_absGlass,m_absGlass};
   glassPT->AddProperty("RINDEX",glassE,glassN,3);
   glassPT->AddProperty("ABSLENGTH",glassE,glassAbs,3);
+
+  m_glass->SetMaterialPropertiesTable(glassPT);
 
 
   // ------------- Surfaces and Optical Properties --------------
@@ -381,9 +444,8 @@ void CMSHFDetectorConstruction::SetupGeometry()
   //
   // ------------- primitives -----------
   G4cout << "CMSHF Constructing block: " << 2.*m_Wdx << "x" << 2.*m_Wdy << "x" << 2.*m_length << G4endl;
-  m_absBlock = new G4Box("block",m_segWidth/2.,m_segHeight/2.,m_length);
-  //m_qFibreCher = new G4Tubs("quarzFibre",0.,m_rCFib,m_length,0.,2.*pi);
-  //m_cladCher_tube = new G4Tubs("cladding",m_rCClad,m_rCFib,m_length,0,2.*pi);
+  m_absBlock = new G4Box("block",m_segWidth/2.,m_segHeight/2.,m_absDepth/2.);
+
   m_qFibreCher = new G4Tubs("quartzFibre",0.,m_rCFib,m_length,0.,2.*pi);
   m_cladCher_tube = new G4Tubs("cladding",m_rCCore,m_rCClad,m_length,0,2.*pi);
   m_buffCher_tube = new G4Tubs("buffer",m_rCClad,m_rCFib,m_length,0,2.*pi);
@@ -391,18 +453,19 @@ void CMSHFDetectorConstruction::SetupGeometry()
   m_cladScin_tube = new G4Tubs("cladding",m_rSGlass,m_rSClad,m_length,0,2.*pi);
   m_buffScin_tube = new G4Tubs("buffer",m_rSClad,m_rSFib,m_length,0,2.*pi);
   m_jacketScin_tube = new G4Tubs("jacket",m_rSCore,m_rSGlass,m_length,0,2.*pi);
-  m_air_gap = new G4Tubs("airGap",0.,m_rair,m_length,0,2.*pi);
+
   m_glass_box = new G4Box("Glass",m_segWidth/2.,m_segHeight/2.,1.*cm);
-  m_repeat_box = new G4Box("repeat",m_segWidth/2.,m_segHeight/2.,m_length);
-  m_deadBlock_box = new G4Box("block",m_absDepth/2.,m_Wdy,m_length);
+
+  m_collar_tube = new G4Tubs("collar",m_rCollar,m_rOuterCollar,m_collarLength/2.,0.,2.*pi);
+  m_pmtWindow_plate = new G4Tubs("pmtWindow",0.,m_rCollar,m_pmtWindowThickness/2.,0.,2.*pi);
 
   //
   // ------------- Volumes --------------
-  const unsigned segTot = m_Nseg*m_Nseg;
+  const unsigned segTot = m_Nseg;
 
-  m_absBlock_log = new G4LogicalVolume(m_absBlock,m_brass,"block",0,0,0);
+  m_absBlock_log = new G4LogicalVolume(m_absBlock,m_iron,"block",0,0,0);
+  m_pbBlock_log = new G4LogicalVolume(m_absBlock,m_lead,"lead",0,0,0);
   // air gap 
-  m_airGap_log = new G4LogicalVolume(m_air_gap,m_air,"AirGap",0,0,0);
 
   
   // Quartz fibre
@@ -431,8 +494,10 @@ void CMSHFDetectorConstruction::SetupGeometry()
   //
   m_glass_log = new G4LogicalVolume(m_glass_box,m_glass,"glassLog",0,0,0); 
 
-  // dead material
-  m_deadBlock_log = new G4LogicalVolume(m_deadBlock_box,m_iron,"DeadMaterial",0,0,0);
+  // collar and pmt window
+  m_collar_log = new G4LogicalVolume(m_collar_tube,m_collarMaterial,"collar",0,0,0);
+  m_pmtWindow_log = new G4LogicalVolume(m_pmtWindow_plate,m_glass,"pmtWindow",0,0,0);
+  m_pmtSpace_log = new G4LogicalVolume(m_pmtWindow_plate,m_vacuum,"pmtSpace",0,0,0);
 
   // set limits on the time to propagate photons
   // needs a G4StepLimiter needs to be added to OpticalPhoton
@@ -452,9 +517,8 @@ void CMSHFDetectorConstruction::SetupDetectors()
 
   int count=0,scsfCount=0;
 
-  const unsigned segTot = m_Nseg*m_Nseg;
-  m_absBlock_phys.resize(segTot);
-  m_glass_phys.resize(segTot);
+  const unsigned segTot = m_Nseg;
+  m_pbBlock_phys.resize(segTot);
 
   // setup block and wedge transformation
   G4RotationMatrix rot;
@@ -470,8 +534,9 @@ void CMSHFDetectorConstruction::SetupDetectors()
   }
 
   // place first absorber segment
-  m_absBlock_phys[0] = new G4PVPlacement(G4Transform3D(rot,m_segPositions[0]),m_absBlock_log,"absorber",m_expHall_log,false,0,m_checkOverlaps);
-  m_glass_phys[0] = new G4PVPlacement(G4Transform3D(rot,m_segPositions[0]+glassOffset),m_glass_log,"glass",m_expHall_log,false,0,m_checkOverlaps); 
+  m_absBlock_phys = new G4PVPlacement(G4Transform3D(rot,G4ThreeVector(0.,0.,m_absDepth/2.)),m_absBlock_log,"absorber",m_expHall_log,false,0,m_checkOverlaps);
+  
+  m_glass_phys = new G4PVPlacement(G4Transform3D(rot,m_segPositions[0]+glassOffset),m_glass_log,"glass",m_expHall_log,false,0,m_checkOverlaps); 
 
   // ------------------------------------------------------
   // insert fibers 
@@ -484,23 +549,10 @@ void CMSHFDetectorConstruction::SetupDetectors()
   if ( m_fillFibres ) PlaceFibres();
 
 
-  // place the absorber block
-  for ( unsigned i=1; i != segTot; i++ ) {
-    m_absBlock_phys[i] = new G4PVPlacement(G4Transform3D(rot,m_segPositions[i]),m_absBlock_log,"absorber",m_expHall_log,false,i,m_checkOverlaps);
-
-    m_glass_phys[i] = new G4PVPlacement(G4Transform3D(rot,m_segPositions[i]+glassOffset),m_glass_log,"glass",m_expHall_log,false,i,m_checkOverlaps); 
+  // place the lead blocks
+  for ( unsigned i=0; i != segTot; i++ ) {
+    m_pbBlock_phys[i] = new G4PVPlacement(G4Transform3D(rot,m_segPositions[i]),m_pbBlock_log,"absorber",m_expHall_log,false,i,m_checkOverlaps);
   }
-
-  // place dead blocks
-  //m_deadBlocks_phys.push_back(new G4PVPlacement(G4Transform3D(rot,G4ThreeVector(m_xPos-m_Wdx-m_absDepth,m_yPos,m_zPos)),m_deadBlock_log,"dead",m_expHall_log,false,0,m_checkOverlaps));
-  /*const unsigned nDead = m_deadPositions.size();
-  for ( unsigned i=0; i != nDead; i++ ) {
-    m_deadBlocks_phys.push_back(new G4PVPlacement(G4Transform3D(rot,m_deadPositions[i]),m_deadBlock_log,"dead",m_expHall_log,false,0,m_checkOverlaps));
-  }*/
-
-
-  //
-  //G4cout << "Total Number of fibers: " << count << " " << scsfCount << G4endl;
 
 
 }
@@ -508,27 +560,59 @@ void CMSHFDetectorConstruction::SetupDetectors()
 void CMSHFDetectorConstruction::PlaceFibres()
 {
 
-  // place air gap
-  m_airGap_phys.push_back(new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_airGap_log,"AirGap",m_absBlock_log,false,0,m_checkOverlaps));
+  G4RotationMatrix rot;
+  rot.rotateY(90*deg);
 
   // place two quartz fibres
-  m_fibresCher.push_back(new G4PVPlacement(0,G4ThreeVector(0.,-m_rCFib,0.),m_qFibreCher_log,"Cfib0",m_airGap_log,false,0,m_checkOverlaps));
-  m_fibresCher.push_back(new G4PVPlacement(0,G4ThreeVector(0,m_rCFib,0.),m_qFibreCher_log,"Cfib1",m_airGap_log,false,1,m_checkOverlaps));
+  //m_fibresCher.push_back(new G4PVPlacement(G4Transform3D(rot,G4ThreeVector(0.,0.,10.*cm)),m_qFibreCher_log,"Cfib0",m_expHall_log,false,0,m_checkOverlaps));
+
+  // place fibers in 10x10 grid
+  const unsigned nSide = 10U;
+  for ( unsigned i=0; i != nSide; i++ ) {
+    const double yPos = 9.*m_rCFib - i*2.*m_rCFib;
+    for ( unsigned j=0; j != nSide; j++ ) {
+      const double zPos = 10.*cm + 9.*m_rCFib - j*2.*m_rCFib;
+      char name[50];
+      sprintf(name,"Cfib%d",i*nSide+j);
+      m_fibresCher.push_back(new G4PVPlacement(G4Transform3D(rot,G4ThreeVector(0.,yPos,zPos)),m_qFibreCher_log,name,m_expHall_log,false,0,m_checkOverlaps));
+    }
+  }
  
-  // place two scintillating fibers
-  const double x = sqrt((m_rCFib+m_rSFib)*(m_rCFib+m_rSFib)-m_rCFib*m_rCFib);
-  m_fibresScin.push_back(new G4PVPlacement(0,G4ThreeVector(x,0.,0.),m_qFibreScin_log,"Sfib0",m_airGap_log,false,0,m_checkOverlaps));
-  m_fibresScin.push_back(new G4PVPlacement(0,G4ThreeVector(-x,0.,0.),m_qFibreScin_log,"Sfib1",m_airGap_log,false,1,m_checkOverlaps));
+
+
 
   // place clad and buffer in the first fibre
   m_claddingCher = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladCher_log,"Qclad",m_qFibreCher_log,false,0,m_checkOverlaps);
   m_bufferCher = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_buffCher_log,"buffer",m_qFibreCher_log,false,0,m_checkOverlaps);
 
-  // place clad and biffer and jacket on scintillating fiber
-  m_jacketScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_jacketScin_log,"jacket",m_qFibreScin_log,false,0,m_checkOverlaps);
-  m_claddingScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladScin_log,"Sclad",m_qFibreScin_log,false,0,m_checkOverlaps);
-  m_bufferScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_buffScin_log,"buffer",m_qFibreScin_log,false,0,m_checkOverlaps);
 
+  // place two scintillating fibers
+  /*const double x = sqrt((m_rCFib+m_rSFib)*(m_rCFib+m_rSFib)-m_rCFib*m_rCFib);
+  m_fibresScin.push_back(new G4PVPlacement(0,G4ThreeVector(x,0.,0.),m_qFibreScin_log,"Sfib0",m_expHall_log,false,0,m_checkOverlaps));
+  m_fibresScin.push_back(new G4PVPlacement(0,G4ThreeVector(-x,0.,0.),m_qFibreScin_log,"Sfib1",m_expHall_log,false,1,m_checkOverlaps));*/
+  // place clad and biffer and jacket on scintillating fiber
+  /*m_jacketScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_jacketScin_log,"jacket",m_qFibreScin_log,false,0,m_checkOverlaps);
+  m_claddingScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladScin_log,"Sclad",m_qFibreScin_log,false,0,m_checkOverlaps);
+  m_bufferScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_buffScin_log,"buffer",m_qFibreScin_log,false,0,m_checkOverlaps);*/
+
+
+  // place light guide (collar + pmt window)
+  m_collar_phys = new G4PVPlacement(G4Transform3D(rot,G4ThreeVector(-m_length-0.9*m_collarLength/2.,0.,10.*cm)),m_collar_log,"collar",m_expHall_log,false,0,m_checkOverlaps);
+  m_pmtWindow_phys = new G4PVPlacement(G4Transform3D(rot,G4ThreeVector(-m_length-1.*mm-m_pmtWindowThickness/2.,0.,10.*cm)),m_pmtWindow_log,"pmtWindow",m_expHall_log,false,0,m_checkOverlaps);
+  m_pmtSpace_phys = new G4PVPlacement(G4Transform3D(rot,G4ThreeVector(-m_length-1.*mm-1.5*m_pmtWindowThickness,0.,10.*cm)),m_pmtSpace_log,"pmtSpace",m_expHall_log,false,0,m_checkOverlaps);
+
+
+  G4OpticalSurface *photoCathode = new G4OpticalSurface("photoCathode");
+  new G4LogicalBorderSurface("PhotoCathode",m_pmtWindow_phys,m_pmtSpace_phys,photoCathode);
+
+  photoCathode->SetType(dielectric_metal);
+  photoCathode->SetFinish(polished);
+  photoCathode->SetModel(glisur);
+
+  photoCathode->SetMaterialPropertiesTable(m_vacMPT);
+
+  // skin surface
+  //new G4LogicalSkinSurface("PhotoCathode",m_pmtSpace_log,photoCathode);
 
 }
 
@@ -541,61 +625,18 @@ void CMSHFDetectorConstruction::CalculateConstants()
      m_stacking->SetFibLength(m_length);
   }
 
-  const double segWy = m_segHeight/cos(m_pitch);
-  const double segWx = m_segWidth/cos(m_yaw);
-  m_Wdx = m_Nseg*segWx/2.;
-  m_Wdy = m_Nseg*segWy/2.;
-
   // calculate segment positions
-  const double xOffset = m_Wdx-segWx/2.;
-  const double yOffset = m_Wdy-segWy/2.;
+  const double xOffset = 0.;
+  const double yOffset = 0.*cm;
+  const double zOffset = 20.*cm;
 
-  m_segPositions.resize(m_Nseg*m_Nseg);
+  m_segPositions.resize(m_Nseg);
 
+ 
+  G4cout << " == Updating segment positions " << m_Nseg << " segments == " << G4endl; 
   for ( unsigned i=0; i != m_Nseg; i++ ) {
-    const double yPos = m_yPos-yOffset+i*segWy;
-    for ( unsigned j=0; j != m_Nseg; j++ ) {
-      const double xPos = m_xPos-xOffset+j*segWx;
-      unsigned p = i*m_Nseg+j;
-      m_segPositions[p] = G4ThreeVector(xPos,yPos,m_zPos);
-    }
-  }
-
-
-  m_deadPositions.clear();
-  // find positions on top
-  for ( unsigned i=0; i != m_deadSeg_top; i++ ) {
-    const double yPos = m_yPos + m_Wdy + segWy/2. + i*segWy;
-    for ( unsigned j=0; j != m_Nseg; j++ ) {
-      const double xPos = m_xPos-xOffset+j*segWx;
-      m_deadPositions.push_back(G4ThreeVector(xPos,yPos,m_zPos));
-    }
-  }
-  // find positions on right
-  const unsigned nRightTot = m_Nseg+m_deadSeg_top+m_deadSeg_bottom;
-  for ( unsigned i=0; i != nRightTot; i++ ) {
-    const double yPos = m_yPos-yOffset-m_deadSeg_bottom*segWy+i*segWy;
-    for ( unsigned j=0; j != m_deadSeg_right; j++ ) {
-      const double xPos = m_xPos + m_Wdx + segWx/2. + j*segWx;
-      m_deadPositions.push_back(G4ThreeVector(xPos,yPos,m_zPos));
-    }
-  }
-  // find positions on bottom
-  for ( unsigned i=0; i != m_deadSeg_bottom; i++ ) {
-    const double yPos = m_yPos - m_Wdy - segWy/2. - i*segWy;
-    for ( unsigned j=0; j != m_Nseg; j++ ) {
-      const double xPos = m_xPos-xOffset+j*segWx;
-      m_deadPositions.push_back(G4ThreeVector(xPos,yPos,m_zPos));
-    }
-  }
-  // find positions on left
-  const unsigned nLeftTot = m_Nseg+m_deadSeg_top+m_deadSeg_bottom;
-  for ( unsigned i=0; i != nLeftTot; i++ ) {
-    const double yPos = m_yPos-yOffset-m_deadSeg_bottom*segWy+i*segWy;
-    for ( unsigned j=0; j != m_deadSeg_left; j++ ) {
-      const double xPos = m_xPos - m_Wdx - segWx/2. - j*segWx;
-      m_deadPositions.push_back(G4ThreeVector(xPos,yPos,m_zPos));
-    }
+    m_segPositions[i] = G4ThreeVector( xOffset, yOffset, zOffset+i*m_absDepth);
+    G4cout << "  [i] " << m_segPositions[i] << G4endl;
   }
 
 }
@@ -829,28 +870,20 @@ void CMSHFDetectorConstruction::ClearPhysicalVolumes()
 
   assert(m_isConstructed);
 
-  const unsigned segTot = m_Nseg*m_Nseg;
-  const unsigned nAbs = m_absBlock_phys.size();
-  m_absBlock_log->ClearDaughters();
-  for ( unsigned i=0; i != nAbs; i++ ) {
-    m_absBlock_log->RemoveDaughter(m_absBlock_phys[i]);
-    delete m_absBlock_phys[i];
-  }
-  m_absBlock_phys.clear();
-  m_absBlock_log->ClearDaughters();
+  const unsigned segTot = m_Nseg;
 
-  m_deadBlock_log->ClearDaughters();
-  const unsigned nDead = m_deadBlocks_phys.size();
-  for ( unsigned i=0; i != nDead; i++ ) 
-    delete m_deadBlocks_phys[i];
-  m_deadBlocks_phys.clear();
+  m_absBlock_log->RemoveDaughter(m_absBlock_phys);
+  delete m_absBlock_phys;
 
-  const unsigned nGlass = m_glass_phys.size();
-  for ( unsigned i=0; i != nGlass; i++ ) { 
-    m_glass_log->RemoveDaughter( m_glass_phys[i] );
-    delete m_glass_phys[i];
+  m_glass_log->RemoveDaughter( m_glass_phys );
+  delete m_glass_phys;
+
+  const unsigned nLead = m_pbBlock_phys.size();
+  for ( unsigned i=0; i != nLead; i++ ) {
+    m_pbBlock_log->RemoveDaughter( m_pbBlock_phys[i] );
+    delete m_pbBlock_phys[i];
   }
-  m_glass_phys.clear();
+  m_pbBlock_phys.clear();
 
   // clear daughters of logical volumes
   m_jacketScin_log->ClearDaughters();
@@ -874,9 +907,24 @@ void CMSHFDetectorConstruction::ClearPhysicalVolumes()
   }
   m_fibresScin.clear();
 
-  m_airGap_log->ClearDaughters();
+  if ( m_collar_phys ) { 
+    m_collar_log->RemoveDaughter( m_collar_phys );
+    delete m_collar_phys;
+    m_collar_phys = NULL;
+  }
 
-  
+  if ( m_pmtWindow_phys ) {
+    m_pmtWindow_log->RemoveDaughter( m_pmtWindow_phys ) ;
+    delete m_pmtWindow_phys;
+    m_pmtWindow_phys = NULL;
+  }
+
+  if ( m_pmtSpace_phys ) {
+    m_pmtSpace_log->RemoveDaughter( m_pmtSpace_phys );
+    delete m_pmtSpace_phys;
+    m_pmtSpace_phys = NULL;
+  }
+
 
 }
 
@@ -889,7 +937,6 @@ void CMSHFDetectorConstruction::ClearLogicalVolumes()
   delete m_qFibreCher_log;
   delete m_cladCher_log;
   delete m_buffCher_log;
-  delete m_airGap_log;
 
   delete m_qFibreScin_log;
   delete m_cladScin_log;
@@ -897,8 +944,10 @@ void CMSHFDetectorConstruction::ClearLogicalVolumes()
   delete m_jacketScin_log;
 
   delete m_glass_log;
-  delete m_deadBlock_log;
 
+  delete m_collar_log;
+  delete m_pmtWindow_log;
+  delete m_pmtSpace_log;
 
 }
 

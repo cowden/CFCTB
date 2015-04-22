@@ -3,13 +3,13 @@
 #/testBeam/rotate 0 3 0 deg
 #/testBeam/buildWorBrass false
 #/testBeam/fibreSpacing 2. mm
-/testBeam/length 1. m
+#/testBeam/length 1. m
 #/testBeam/detPosition 0.1 0 -0.325 m
-/testBeam/detPosition 0 0 1 m
+#/testBeam/detPosition 0 0 1 m
 /testBeam/fibres true
 #/testBeam/magField 0. 0. 3.8 tesla
 /testBeam/checkOverlaps true
-/testBeam/Nseg 11 
+/testBeam/Nseg 4 
 /testBeam/refreshGeometry true
 
 
@@ -19,7 +19,8 @@
 
 # Use this open statement to create an OpenGL view:
 #/vis/open OGL 600x600-0+0
-/vis/open OGLIX 600x600-0+0
+#/vis/open OGLIX 600x600-0+0
+/vis/open OGLIQt
 #
 # Use this open statement to create a .prim file suitable for
 # viewing in DAWN:
@@ -48,6 +49,8 @@
 #
 # Specify view angle:
 /vis/viewer/set/viewpointThetaPhi 135. 30.
+
+/vis/viewer/set/projection p
 #
 # Specify zoom value:
 /vis/viewer/zoom 1
@@ -62,7 +65,8 @@
 /vis/geometry/set/visibility World 0 false
 #/vis/geometry/set/colour WRodLog 0 1 1 0 0.5
 /vis/geometry/set/colour glassLog 1 1 0 
-/vis/geometry/set/colour DeadMaterial 0 0 1 0.75
+/vis/geometry/set/colour lead 0 0 1 0
+/vis/geometry/set/colour block 1 0 1 0.1
 
 #
 # Draw coordinate axes:
@@ -102,7 +106,7 @@
 #/gun/direction 0 0 -1
 #/N06/gun/optPhotonPolar 0
 # setup the particle gun
-/gun/particle mu+
+/gun/particle e+
 /gun/energy 10 GeV
 /gun/position 0 0 0 m
 #/gun/direction 0.0523 0 1 # 3 degrees
@@ -118,4 +122,4 @@
 #
 # For file-based drivers, use this to create an empty detector view:
 /vis/viewer/flush
-/run/beamOn 1
+#/run/beamOn 1

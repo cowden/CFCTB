@@ -3,6 +3,7 @@
 
 #include "CMSHFDetectorConstruction.hh"
 
+#include "G4SystemOfUnits.hh"
 #include "G4UIdirectory.hh"
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"

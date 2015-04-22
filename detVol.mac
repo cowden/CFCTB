@@ -7,12 +7,12 @@
 #/testBeam/detPosition 31.4 0 599 mm
 #/testBeam/buildWorBrass false
 #/testBeam/fibreSpacing 2. mm
-/testBeam/length 1. m
-/testBeam/detPosition 0 0 1 m
+#/testBeam/length 1. m
+#/testBeam/detPosition 0 0 1 m
 /testBeam/fibres true
-/testBeam/Nseg 11
+/testBeam/Nseg 4
 #/testBeam/rotate -1.5 3 0 deg
-/testBeam/checkOverlaps false
+/testBeam/checkOverlaps true
 /testBeam/refreshGeometry true
 
 #/run/verbose 2
@@ -63,4 +63,4 @@
 #/gun/info
  
 #
-/run/beamOn 1000
+/run/beamOn 100

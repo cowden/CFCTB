@@ -38,6 +38,8 @@
 #include "G4Event.hh"
 #include "G4LorentzVector.hh"
 #include "G4TransportationManager.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4PhysicalConstants.hh"
 
 #include <iostream>
 #include <fstream>

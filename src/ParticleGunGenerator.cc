@@ -9,6 +9,7 @@
 #include "ParticleGunGenerator.hh"
 #include "ParticleGunMessenger.hh"
 
+#include "G4SystemOfUnits.hh"
 #include "G4ParticleGun.hh"
 #include "G4MuonPlus.hh"
 #include "G4Event.hh"
