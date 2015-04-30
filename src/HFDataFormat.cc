@@ -48,7 +48,7 @@ void HFDataFormat::fillStackingAction(const StackingStruct &st, const ROType t)
       m_opt_depth.push_back(st.depth);
       m_opt_t.push_back(st.t);
       m_opt_tprop.push_back(st.tprop);
-    } else {
+    } else if ( t == fScintillation ) {
       m_scin_wavelength.push_back(st.wavelength);
       m_scin_energy.push_back(st.energy);
       m_scin_na.push_back(st.na);
@@ -57,11 +57,11 @@ void HFDataFormat::fillStackingAction(const StackingStruct &st, const ROType t)
       m_scin_depth.push_back(st.depth);
       m_scin_t.push_back(st.t);
       m_scin_tprop.push_back(st.tprop);
-    }
+    } 
   }
 }
 
-void HFDataFormat::fillIonization(const IoniStruct &is)
+void HFDataFormat::fillIonizationCore(const IoniStruct &is)
 {
   if (_storePMTInfo) {
     m_scinIon_E.push_back(is.E);
@@ -69,6 +69,28 @@ void HFDataFormat::fillIonization(const IoniStruct &is)
     m_scinIon_y.push_back(is.y);
     m_scinIon_depth.push_back(is.depth);
     m_scinIon_t.push_back(is.t);
+  }
+}
+
+void HFDataFormat::fillIonizationQuartz(const IoniStruct &is)
+{
+  if (_storePMTInfo) {
+    m_quartzIon_E.push_back(is.E);
+    m_quartzIon_x.push_back(is.x);
+    m_quartzIon_y.push_back(is.y);
+    m_quartzIon_depth.push_back(is.depth);
+    m_quartzIon_t.push_back(is.t);
+  }
+}
+
+void HFDataFormat::fillIonizationClad(const IoniStruct &is)
+{
+  if (_storePMTInfo) {
+    m_cladIon_E.push_back(is.E);
+    m_cladIon_x.push_back(is.x);
+    m_cladIon_y.push_back(is.y);
+    m_cladIon_depth.push_back(is.depth);
+    m_cladIon_t.push_back(is.t);
   }
 }
 
@@ -139,7 +161,7 @@ void HFDataFormat::fillSteppingAction(const SteppingStruct &st, const ROType t)
       m_pmtScin_wavelength.push_back(st.lambda);
       m_pmtScin_polX.push_back(st.polX);
       m_pmtScin_polY.push_back(st.polY);
-    } else {
+    } else if ( t == fCherenkov ) {
       m_pmt_x.push_back(st.x);
       m_pmt_y.push_back(st.y);
       m_pmt_z.push_back(st.z);
@@ -152,6 +174,19 @@ void HFDataFormat::fillSteppingAction(const SteppingStruct &st, const ROType t)
       m_pmt_wavelength.push_back(st.lambda);
       m_pmt_polX.push_back(st.polX);
       m_pmt_polY.push_back(st.polY);
+    } else {
+      m_fib_x.push_back(st.x);
+      m_fib_y.push_back(st.y);
+      m_fib_z.push_back(st.z);
+      m_fib_vx.push_back(st.vx);
+      m_fib_vy.push_back(st.vy);
+      m_fib_vz.push_back(st.vz);
+      m_fib_t.push_back(st.t);
+      m_fib_lt.push_back(st.lt);
+      m_fib_tl.push_back(st.tl);
+      m_fib_wavelength.push_back(st.lambda);
+      m_fib_polX.push_back(st.polX);
+      m_fib_polY.push_back(st.polY);
     }
   }
 }
@@ -246,11 +281,37 @@ void HFDataFormat::generateTrees()
     m_event->Branch("pmtScin_vy",&m_pmtScin_vy);
     m_event->Branch("pmtScin_vz",&m_pmtScin_vz);
 
-    m_event->Branch("ion_E",&m_scinIon_E);
-    m_event->Branch("ion_x",&m_scinIon_x);
-    m_event->Branch("ion_y",&m_scinIon_y);
-    m_event->Branch("ion_depth",&m_scinIon_depth);
-    m_event->Branch("ion_t",&m_scinIon_t);
+    m_event->Branch("fib_t",&m_fib_t);
+    m_event->Branch("fib_localTime",&m_fib_lt);
+    m_event->Branch("fib_trackLength",&m_fib_tl);
+    m_event->Branch("fib_wavelength",&m_fib_wavelength);
+    m_event->Branch("fib_polX",&m_fib_polX);
+    m_event->Branch("fib_polY",&m_fib_polY);
+    m_event->Branch("fib_x",&m_fib_x);
+    m_event->Branch("fib_y",&m_fib_y);
+    m_event->Branch("fib_z",&m_fib_z);
+    m_event->Branch("fib_vx",&m_fib_vx);
+    m_event->Branch("fib_vy",&m_fib_vy);
+    m_event->Branch("fib_vz",&m_fib_vz);
+
+    m_event->Branch("scinIon_E",&m_scinIon_E);
+    m_event->Branch("scinIon_x",&m_scinIon_x);
+    m_event->Branch("scinIon_y",&m_scinIon_y);
+    m_event->Branch("scinIon_depth",&m_scinIon_depth);
+    m_event->Branch("scinIon_t",&m_scinIon_t);
+
+    m_event->Branch("quartzIon_E",&m_quartzIon_E);
+    m_event->Branch("quartzIon_x",&m_quartzIon_x);
+    m_event->Branch("quartzIon_y",&m_quartzIon_y);
+    m_event->Branch("quartzIon_depth",&m_quartzIon_depth);
+    m_event->Branch("quartzIon_t",&m_quartzIon_t);
+
+    m_event->Branch("cladIon_E",&m_cladIon_E);
+    m_event->Branch("cladIon_x",&m_cladIon_x);
+    m_event->Branch("cladIon_y",&m_cladIon_y);
+    m_event->Branch("cladIon_depth",&m_cladIon_depth);
+    m_event->Branch("cladIon_t",&m_cladIon_t);
+
   }
 
   m_event->Branch("totLeak",&m_totLeak,"totLeak/D");

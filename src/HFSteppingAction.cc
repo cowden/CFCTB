@@ -42,9 +42,27 @@ void HFSteppingAction::UserSteppingAction(const G4Step * step)
 
   const G4String & postName = postVolume->GetName();
 
+  // store photons crossing the end of the fiber
+  if ( theTrack->GetDefinition() == m_optDef && postVolume && preVolume != postVolume && postName.contains("World") ) {
+
+    const bool isFibre = preName.contains("Cfib") || preName.contains("Qclad");
+    const bool isScinFibre = preName.contains("Sfib") || preName.contains("Sclad") || preName.contains("jacket");
+
+    const G4DynamicParticle * theParticle = theTrack->GetDynamicParticle();
+    const double wavelength = hbarc*twopi/theParticle->GetTotalEnergy()*1.e+6;
+
+    const G4ThreeVector & pol = theParticle->GetPolarization();
+    const G4ThreeVector & vertpos = theTrack->GetVertexPosition();
+
+    SteppingStruct st(pos,time,theTrack->GetLocalTime(),theTrack->GetTrackLength(),wavelength,pol.x(),pol.y(),vertpos);
+     
+    if ( isFibre && pos.x() < 0. ) m_df->fillSteppingAction( st, fFiber );
+    else if ( isScinFibre && pos.x() < 0. ) m_df->fillSteppingAction( st, fFiber );
+
+  }
 
   // store ionization energy loss in the scintillating fiber
-  if ( theTrack->GetDefinition() != m_optDef && preVolume == postVolume && preName.contains("Sfib") ) {
+  if ( theTrack->GetDefinition() != m_optDef && preVolume == postVolume ) {
     // collect ionization energy loss in the scintillating fiber core
     const double E = step->GetTotalEnergyDeposit();
 
@@ -52,8 +70,17 @@ void HFSteppingAction::UserSteppingAction(const G4Step * step)
     const double dist = (touchTrans.z()+m_fibLength/2.-pos.z())/m_fibLength;
     const double depth = m_fibLength*(1.-dist);
 
-    IoniStruct is(E,pos,depth,time);
-    m_df->fillIonization(is); 
+    if ( preName.contains("Sfib") ) {
+      IoniStruct is(E,pos,depth,time);
+      m_df->fillIonizationCore(is); 
+    } else if ( preName.contains("Cfib") || preName.contains("jacket") ) {
+      IoniStruct is(E,pos,depth,time);
+      m_df->fillIonizationQuartz(is); 
+    } else if ( preName.contains("clad") ) {
+      IoniStruct is(E,pos,depth,time);
+      m_df->fillIonizationClad(is); 
+    }
+
   } 
 
   // record photons collected at the photo-cathod

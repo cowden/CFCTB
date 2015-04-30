@@ -143,7 +143,7 @@ HFStackingAction::ClassifyNewTrack(const G4Track * aTrack)
       ph.direction.SetX( mom.x() );
       ph.direction.SetY( mom.y() );
       ph.direction.SetZ( mom.z() );
-      ph.dist = (touchTrans.z()+m_fibLength/2.-pos.z())/m_fibLength;
+      ph.dist = (touchTrans.x()+m_fibLength/2.-pos.x())/m_fibLength;
       assert( ph.dist <= 1. );
       assert( ph.dist >= 0. );      
 
@@ -168,17 +168,17 @@ HFStackingAction::ClassifyNewTrack(const G4Track * aTrack)
      
       //if ( lambda <= m_lCutLow ) classification = fKill;
 
-      if ( vName.contains("Cfib") &&  lambda > m_lCutLow && isDetected ) {
+      if ( vName.contains("Cfib") &&  isDetected ) {
         gammaCounter++;
-	StackingStruct st(lambda,E,na,x,y,depth,t,probTime);
+	StackingStruct st(lambda,E,na,x,y,z,t,probTime);
         m_df->fillStackingAction(st,fCherenkov);
-      } else if ( (vName.contains("Sfib") || vName.contains("jacket")) &&  lambda > m_lCutLow && isDetected ) { 
+      } else if ( (vName.contains("Sfib") || vName.contains("jacket")) &&  isDetected ) { 
         gammaCounter++;
-	StackingStruct st(lambda,E,na,x,y,depth,t,probTime);
+	StackingStruct st(lambda,E,na,x,y,z,t,probTime);
         m_df->fillStackingAction(st,fScintillation);
       } else if ( vName.contains("glass")  ) {
 	// kill tracks created in the glass
-	classification = fKill;
+	//classification = fKill;
       } 
     }
 

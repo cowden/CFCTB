@@ -26,7 +26,8 @@
 /// enumeration of readout type (Cherenkov or scintillation)
 enum ROType {
  fCherenkov=0,
- fScintillation
+ fScintillation,
+ fFiber
 };
 
 ///
@@ -165,7 +166,9 @@ public:
   // fill from stepping action (PMT);
   void fillSteppingAction(const SteppingStruct &);
   void fillSteppingAction(const SteppingStruct &, const ROType);
-  void fillIonization(const IoniStruct &);
+  void fillIonizationCore(const IoniStruct &);
+  void fillIonizationQuartz(const IoniStruct &);
+  void fillIonizationClad(const IoniStruct &);
 
   
 
@@ -248,8 +251,20 @@ private:
   std::vector<double> m_scinIon_y;
   std::vector<double> m_scinIon_depth;
 
+  std::vector<double> m_quartzIon_E;
+  std::vector<double> m_quartzIon_t;
+  std::vector<double> m_quartzIon_x;
+  std::vector<double> m_quartzIon_y;
+  std::vector<double> m_quartzIon_depth;
 
-  // photons crossing the end of a fiber
+  std::vector<double> m_cladIon_E;
+  std::vector<double> m_cladIon_t;
+  std::vector<double> m_cladIon_x;
+  std::vector<double> m_cladIon_y;
+  std::vector<double> m_cladIon_depth;
+
+
+  // photons absorbed by photocathode 
   std::vector<double> m_pmt_x;
   std::vector<double> m_pmt_y;
   std::vector<double> m_pmt_z;
@@ -263,7 +278,7 @@ private:
   std::vector<double> m_pmt_polX;
   std::vector<double> m_pmt_polY;
 
-  // photons crossing the end of a fiber
+  // photons absorbed by the photocathode
   std::vector<double> m_pmtScin_x;
   std::vector<double> m_pmtScin_y;
   std::vector<double> m_pmtScin_z;
@@ -276,6 +291,20 @@ private:
   std::vector<double> m_pmtScin_wavelength;
   std::vector<double> m_pmtScin_polX;
   std::vector<double> m_pmtScin_polY;
+
+
+  std::vector<double> m_fib_x;
+  std::vector<double> m_fib_y;
+  std::vector<double> m_fib_z;
+  std::vector<double> m_fib_vx;
+  std::vector<double> m_fib_vy;
+  std::vector<double> m_fib_vz;
+  std::vector<double> m_fib_t;
+  std::vector<double> m_fib_lt;
+  std::vector<double> m_fib_tl;
+  std::vector<double> m_fib_wavelength;
+  std::vector<double> m_fib_polX;
+  std::vector<double> m_fib_polY;
 
   // shower particle branches
   std::vector<int>  m_part_pdgId;
