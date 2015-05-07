@@ -632,6 +632,7 @@ void CMSHFDetectorConstruction::PlaceFibres()
       }
     }
     // place clad and buffer in the first fibre
+    m_jacketScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_jacketScin1_log,"Sjacket",m_qFibreScin1_log,false,0,m_checkOverlaps);
     m_claddingScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladScin1_log,"Sclad",m_qFibreScin1_log,false,0,m_checkOverlaps);
     m_bufferScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_buffScin1_log,"buffer",m_qFibreScin1_log,false,0,m_checkOverlaps); 
   }
@@ -649,6 +650,7 @@ void CMSHFDetectorConstruction::PlaceFibres()
       }
     }
     // place clad and buffer in the first fibre
+    m_jacketScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_jacketScin2_log,"Sjacket",m_qFibreScin2_log,false,0,m_checkOverlaps);
     m_claddingScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_cladScin2_log,"Sclad",m_qFibreScin2_log,false,0,m_checkOverlaps);
     m_bufferScin = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),m_buffScin2_log,"buffer",m_qFibreScin2_log,false,0,m_checkOverlaps);
   }
