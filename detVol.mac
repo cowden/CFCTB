@@ -11,6 +11,7 @@
 #/testBeam/detPosition 0 0 1 m
 /testBeam/fibres true
 /testBeam/Nseg 4
+/testBeam/fiberType quartz
 #/testBeam/rotate -1.5 3 0 deg
 /testBeam/checkOverlaps true
 /testBeam/refreshGeometry true

@@ -48,6 +48,7 @@ class CMSHFDetectorConstructionMessenger: public G4UImessenger
    G4UIcmdWithADouble * m_scinYieldRatioCmd;
    G4UIcmdWithADoubleAndUnit * m_scinFastConstCmd;
    G4UIcmdWithADoubleAndUnit * m_scinSlowConstCmd;
+   G4UIcmdWithAString * m_fiberTypeCmd;
 
 };
 

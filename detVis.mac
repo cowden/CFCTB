@@ -10,6 +10,7 @@
 #/testBeam/magField 0. 0. 3.8 tesla
 /testBeam/checkOverlaps true
 /testBeam/Nseg 4 
+/testBeam/fiberType phase2
 /testBeam/refreshGeometry true
 
 

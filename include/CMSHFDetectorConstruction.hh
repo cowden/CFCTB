@@ -53,6 +53,12 @@ class HFPrimaryGeneratorAction;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+enum FiberType {
+  FBquartz = 0,
+  FBphase1,
+  FBphase2
+};
+
 class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
 {
   public:
@@ -104,6 +110,9 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
 
     // refresh geometry and force a rebuild
     void RefreshGeometry();
+
+    // set the type of fiber in the fiber bundle
+    void SetFiberType(const FiberType);
 
 
     // ---- accessor methods -----
@@ -187,10 +196,17 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     G4double m_rCClad;
     G4double m_rCCore;
 
-    G4double m_rSFib;
-    G4double m_rSClad;
-    G4double m_rSCore;
-    G4double m_rSGlass;
+    // phase-I scintillating fiber
+    G4double m_rS1Fib;
+    G4double m_rS1Clad;
+    G4double m_rS1Core;
+    G4double m_rS1Glass;
+
+    // phase-II scintillating fiber
+    G4double m_rS2Fib;
+    G4double m_rS2Clad;
+    G4double m_rS2Core;
+    G4double m_rS2Glass;
 
     G4double m_rair; // radius of air gap
 
@@ -207,6 +223,9 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     double m_yaw;
 
     G4bool m_checkOverlaps;
+
+    // type of fiber to place in the bundle
+    FiberType m_fbtype;
 
     // materials
     G4Material * m_air;
@@ -230,13 +249,17 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     G4Box * m_expHall_box;
     G4Box * m_absBlock;
     G4Tubs * m_qFibreCher;
-    G4Tubs * m_qFibreScin;
+    G4Tubs * m_qFibreScin1;
+    G4Tubs * m_qFibreScin2;
     G4Box * m_glass_box;
     G4Tubs * m_cladCher_tube;
-    G4Tubs * m_cladScin_tube;
-    G4Tubs * m_jacketScin_tube;
+    G4Tubs * m_cladScin1_tube;
+    G4Tubs * m_cladScin2_tube;
+    G4Tubs * m_jacketScin1_tube;
+    G4Tubs * m_jacketScin2_tube;
     G4Tubs * m_buffCher_tube;
-    G4Tubs * m_buffScin_tube;
+    G4Tubs * m_buffScin1_tube;
+    G4Tubs * m_buffScin2_tube;
     G4Tubs * m_collar_tube;
     G4Tubs * m_pmtWindow_plate;
 
@@ -247,10 +270,14 @@ class CMSHFDetectorConstruction : public G4VUserDetectorConstruction
     G4LogicalVolume * m_qFibreCher_log;
     G4LogicalVolume * m_cladCher_log;
     G4LogicalVolume * m_buffCher_log;
-    G4LogicalVolume * m_buffScin_log;
-    G4LogicalVolume * m_jacketScin_log;
-    G4LogicalVolume * m_qFibreScin_log;
-    G4LogicalVolume * m_cladScin_log;
+    G4LogicalVolume * m_buffScin1_log;
+    G4LogicalVolume * m_buffScin2_log;
+    G4LogicalVolume * m_jacketScin1_log;
+    G4LogicalVolume * m_jacketScin2_log;
+    G4LogicalVolume * m_qFibreScin1_log;
+    G4LogicalVolume * m_qFibreScin2_log;
+    G4LogicalVolume * m_cladScin1_log;
+    G4LogicalVolume * m_cladScin2_log;
     G4LogicalVolume * m_glass_log;
     G4LogicalVolume * m_collar_log;
     G4LogicalVolume * m_pmtWindow_log;

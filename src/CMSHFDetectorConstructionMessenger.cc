@@ -143,6 +143,11 @@ CMSHFDetectorConstructionMessenger::CMSHFDetectorConstructionMessenger(CMSHFDete
   m_scinSlowConstCmd->SetDefaultUnit("ns");
   m_scinSlowConstCmd->AvailableForStates(G4State_Idle);
 
+  m_fiberTypeCmd = new G4UIcmdWithAString("/testBeam/fiberType",this);
+  m_fiberTypeCmd->SetGuidance("Set the type of fiber to place in the fiber bundle.");
+  m_fiberTypeCmd->SetParameterName("fiberType",false);
+  m_fiberTypeCmd->AvailableForStates(G4State_Idle);
+
 }
 
 CMSHFDetectorConstructionMessenger::~CMSHFDetectorConstructionMessenger()
@@ -168,6 +173,7 @@ CMSHFDetectorConstructionMessenger::~CMSHFDetectorConstructionMessenger()
   delete m_scinYieldRatioCmd;
   delete m_scinFastConstCmd;
   delete m_scinSlowConstCmd;
+  delete m_fiberTypeCmd;
 
 }
 
@@ -234,6 +240,15 @@ void CMSHFDetectorConstructionMessenger::SetNewValue(G4UIcommand* cmd,G4String n
   }
   else if ( cmd == m_scinSlowConstCmd ) {
     m_detector->SetScinSlowConst( m_scinSlowConstCmd->GetNewDoubleValue(newValue) );
+  } 
+  else if ( cmd == m_fiberTypeCmd ) {
+    const G4String value(newValue);
+    if ( value == "quartz" ) m_detector->SetFiberType(FBquartz);
+    else if ( value == "phase1" ) m_detector->SetFiberType(FBphase1);
+    else if ( value == "phase2" ) m_detector->SetFiberType(FBphase2);
+    else {
+      G4cout << "Incorrecto option to fiberType; " << newValue << " is not a known option" << G4endl;
+    }
   }
 
 }
